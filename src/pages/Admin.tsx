@@ -37,13 +37,6 @@ type Note = {
   downloadUrl?: string;
 };
 
-type Lesson = {
-  id: string;
-  title: string;
-  youtubeUrl?: string;
-  order?: number;
-};
-
 type Profile = {
   id: string;
   name?: string;
@@ -51,6 +44,13 @@ type Profile = {
   phone?: string;
   branch?: string;
   semester?: string;
+};
+
+type Lesson = {
+  id: string;
+  title: string;
+  youtubeUrl?: string;
+  order?: number;
 };
 
 const Admin = () => {
@@ -81,6 +81,7 @@ const Admin = () => {
     description: "",
     downloadUrl: "",
   });
+
   const [lessonForm, setLessonForm] = useState({
     id: "",
     title: "",
@@ -93,9 +94,9 @@ const Admin = () => {
       { label: "Total Students", value: profiles.length.toString() },
       { label: "Notes Published", value: notes.length.toString() },
       { label: "Courses Live", value: courses.length.toString() },
-      { label: "Admins", value: "Set via UID" },
+      { label: "Lessons", value: lessons.length.toString() },
     ],
-    [profiles.length, notes.length, courses.length]
+    [profiles.length, notes.length, courses.length, lessons.length]
   );
 
   useEffect(() => {
@@ -263,10 +264,7 @@ const Admin = () => {
       updatedAt: serverTimestamp(),
     };
     if (lessonForm.id) {
-      await updateDoc(
-        doc(db, "courses", selectedCourseId, "lessons", lessonForm.id),
-        payload
-      );
+      await updateDoc(doc(db, "courses", selectedCourseId, "lessons", lessonForm.id), payload);
     } else {
       await addDoc(collection(db, "courses", selectedCourseId, "lessons"), {
         ...payload,
@@ -294,7 +292,7 @@ const Admin = () => {
     <DashboardLayout>
       <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-background/70 p-8 shadow-2xl backdrop-blur">
         <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-orange-muted/20 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-accent/20 blur-3xl" />
         <div className="relative">
           <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
             Admin Control Room
@@ -303,12 +301,12 @@ const Admin = () => {
             CoreEngineers Studio
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-            Publish courses, manage notes, and keep the platform fresh in real time.
+            Publish courses, manage notes, lessons, and student profiles in real time.
           </p>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {stats.map((item) => (
           <Card key={item.label} className="border-border/50 bg-background/80 backdrop-blur">
             <CardHeader>
@@ -326,6 +324,7 @@ const Admin = () => {
       <div className="rounded-2xl border border-border/50 bg-background/60 p-4 text-xs uppercase tracking-[0.3em] text-muted-foreground">
         Content Studio
       </div>
+
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="border-border/50 bg-background/80 backdrop-blur">
           <CardHeader>
@@ -347,7 +346,7 @@ const Admin = () => {
                 id="course-branch"
                 value={courseForm.branch}
                 onChange={(event) => setCourseForm({ ...courseForm, branch: event.target.value })}
-                placeholder="ECE / EE / ME / Civil"
+                placeholder="CSE / ECE / EE / ME / Civil"
               />
             </div>
             <div className="space-y-2">
@@ -403,7 +402,7 @@ const Admin = () => {
                 id="note-title"
                 value={noteForm.title}
                 onChange={(event) => setNoteForm({ ...noteForm, title: event.target.value })}
-                placeholder="Network Theory — Unit 2"
+                placeholder="Network Theory - Unit 2"
               />
             </div>
             <div className="space-y-2">
@@ -412,7 +411,7 @@ const Admin = () => {
                 id="note-tag"
                 value={noteForm.tag}
                 onChange={(event) => setNoteForm({ ...noteForm, tag: event.target.value })}
-                placeholder="ECE / EE / ME / Civil"
+                placeholder="CSE / ECE / EE / ME / Civil"
               />
             </div>
             <div className="space-y-2">
@@ -429,9 +428,7 @@ const Admin = () => {
               <Textarea
                 id="note-desc"
                 value={noteForm.description}
-                onChange={(event) =>
-                  setNoteForm({ ...noteForm, description: event.target.value })
-                }
+                onChange={(event) => setNoteForm({ ...noteForm, description: event.target.value })}
                 placeholder="What does this note cover?"
               />
             </div>
@@ -440,9 +437,7 @@ const Admin = () => {
               <Input
                 id="note-download"
                 value={noteForm.downloadUrl}
-                onChange={(event) =>
-                  setNoteForm({ ...noteForm, downloadUrl: event.target.value })
-                }
+                onChange={(event) => setNoteForm({ ...noteForm, downloadUrl: event.target.value })}
                 placeholder="Paste Google Drive or GitHub link"
               />
             </div>
@@ -483,7 +478,7 @@ const Admin = () => {
                 id="lesson-title"
                 value={lessonForm.title}
                 onChange={(event) => setLessonForm({ ...lessonForm, title: event.target.value })}
-                placeholder="Signals & Systems — Intro"
+                placeholder="Signals & Systems - Intro"
               />
             </div>
             <div className="space-y-2">
@@ -521,19 +516,13 @@ const Admin = () => {
                   >
                     <div>
                       <p className="text-foreground">{lesson.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Order {lesson.order ?? 1}
-                      </p>
+                      <p className="text-xs text-muted-foreground">Order {lesson.order ?? 1}</p>
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline" onClick={() => editLesson(lesson)}>
                         Edit
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => deleteLesson(lesson.id)}
-                      >
+                      <Button size="sm" variant="secondary" onClick={() => deleteLesson(lesson.id)}>
                         Delete
                       </Button>
                     </div>
@@ -547,72 +536,74 @@ const Admin = () => {
         </CardContent>
       </Card>
 
-      <Card className="border-border/50 bg-background/80 backdrop-blur">
-        <CardHeader>
-          <CardTitle className="font-display text-xl">Courses (Realtime)</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          {courses.length === 0 ? (
-            <p>No courses published.</p>
-          ) : (
-            courses.map((course) => (
-              <div
-                key={course.id}
-                className="flex flex-col gap-3 rounded-lg border border-border/60 bg-secondary/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="text-foreground">{course.title}</p>
-                  <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                    {course.branch} · {course.status ?? "published"}
-                  </p>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card className="border-border/50 bg-background/80 backdrop-blur">
+          <CardHeader>
+            <CardTitle className="font-display text-xl">Courses (Realtime)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground">
+            {courses.length === 0 ? (
+              <p>No courses published.</p>
+            ) : (
+              courses.map((course) => (
+                <div
+                  key={course.id}
+                  className="flex flex-col gap-3 rounded-lg border border-border/60 bg-secondary/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p className="text-foreground">{course.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {course.branch} - {course.status ?? "published"}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => editCourse(course)}>
+                      Edit
+                    </Button>
+                    <Button size="sm" variant="secondary" onClick={() => deleteCourse(course.id)}>
+                      Delete
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => editCourse(course)}>
-                    Edit
-                  </Button>
-                  <Button size="sm" variant="secondary" onClick={() => deleteCourse(course.id)}>
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+              ))
+            )}
+          </CardContent>
+        </Card>
 
-      <Card className="border-border/50 bg-background/80 backdrop-blur">
-        <CardHeader>
-          <CardTitle className="font-display text-xl">Notes (Realtime)</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          {notes.length === 0 ? (
-            <p>No notes published.</p>
-          ) : (
-            notes.map((note) => (
-              <div
-                key={note.id}
-                className="flex flex-col gap-3 rounded-lg border border-border/60 bg-secondary/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="text-foreground">{note.title}</p>
-                  <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                    {note.tag}
-                    {note.category ? ` · ${note.category}` : ""}
-                  </p>
+        <Card className="border-border/50 bg-background/80 backdrop-blur">
+          <CardHeader>
+            <CardTitle className="font-display text-xl">Notes (Realtime)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground">
+            {notes.length === 0 ? (
+              <p>No notes published.</p>
+            ) : (
+              notes.map((note) => (
+                <div
+                  key={note.id}
+                  className="flex flex-col gap-3 rounded-lg border border-border/60 bg-secondary/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p className="text-foreground">{note.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {note.tag}
+                      {note.category ? ` - ${note.category}` : ""}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => editNote(note)}>
+                      Edit
+                    </Button>
+                    <Button size="sm" variant="secondary" onClick={() => deleteNote(note.id)}>
+                      Delete
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => editNote(note)}>
-                    Edit
-                  </Button>
-                  <Button size="sm" variant="secondary" onClick={() => deleteNote(note.id)}>
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       <Card className="border-border/50 bg-background/80 backdrop-blur">
         <CardHeader>
@@ -629,7 +620,7 @@ const Admin = () => {
               >
                 <p className="text-foreground">{profile.name || "Unnamed Student"}</p>
                 <p className="text-xs text-muted-foreground">
-                  {profile.email ?? "No email"} · {profile.branch ?? "Branch"} ·{" "}
+                  {profile.email ?? "No email"} - {profile.branch ?? "Branch"} -{" "}
                   {profile.semester ?? "Semester"}
                 </p>
                 <p className="text-xs text-muted-foreground">UID: {profile.id}</p>
@@ -664,4 +655,3 @@ const Admin = () => {
 };
 
 export default Admin;
-

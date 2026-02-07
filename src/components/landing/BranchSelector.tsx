@@ -1,87 +1,54 @@
-import { Link } from "react-router-dom";
-import { Cpu, Zap, Cog, Building2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Bolt, Cpu, Wrench, Ruler } from "lucide-react";
 
 const branches = [
-  {
-    name: "ECE",
-    full: "Electronics & Communication",
-    icon: Cpu,
-    description: "Circuit theory, signals, communications, VLSI & embedded systems",
-    semesters: 8,
-  },
-  {
-    name: "EE",
-    full: "Electrical Engineering",
-    icon: Zap,
-    description: "Power systems, machines, control theory & electrical circuits",
-    semesters: 8,
-  },
-  {
-    name: "ME",
-    full: "Mechanical Engineering",
-    icon: Cog,
-    description: "Thermodynamics, fluid mechanics, manufacturing & machine design",
-    semesters: 8,
-  },
-  {
-    name: "Civil",
-    full: "Civil Engineering",
-    icon: Building2,
-    description: "Structural analysis, surveying, geotechnical & construction",
-    semesters: 8,
-  },
+  { name: "CSE", title: "Computer Science & Engineering", icon: Cpu },
+  { name: "ECE", title: "Electronics & Communication", icon: Cpu },
+  { name: "EE", title: "Electrical Engineering", icon: Bolt },
+  { name: "ME", title: "Mechanical Engineering", icon: Wrench },
+  { name: "Civil", title: "Civil Engineering", icon: Ruler },
 ];
-
-const container = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.1 },
-  },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
 
 const BranchSelector = () => {
   return (
-    <section className="relative py-24">
+    <section className="py-16">
       <div className="container mx-auto px-4 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Choose Your <span className="text-gradient-orange">Branch</span>
-          </h2>
-          <p className="mt-4 text-muted-foreground">
-            Select your engineering branch to access semester-wise content tailored to your syllabus.
-          </p>
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Branches</p>
+            <h2 className="mt-3 text-3xl font-semibold text-foreground">Choose your track</h2>
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+              Pick your branch to see curated courses, notes, and revision packs tailored for each
+              semester.
+            </p>
+          </div>
         </div>
 
         <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-50px" }}
-          className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-5"
         >
           {branches.map((branch) => (
-            <motion.div key={branch.name} variants={item}>
-              <Link
-                to={`/explore/${branch.name.toLowerCase()}`}
-                className="group relative flex flex-col items-center rounded-xl border border-border bg-gradient-card p-8 text-center transition-all duration-300 hover:border-primary/40 hover:glow-orange-sm"
-              >
-                <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
-                  <branch.icon className="h-8 w-8" />
-                </div>
-                <h3 className="mt-5 font-display text-xl font-bold">{branch.name}</h3>
-                <p className="mt-1 text-xs font-medium text-primary">{branch.full}</p>
-                <p className="mt-3 text-sm text-muted-foreground">{branch.description}</p>
-                <span className="mt-4 inline-flex items-center rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
-                  {branch.semesters} Semesters
-                </span>
-              </Link>
-            </motion.div>
+            <div
+              key={branch.name}
+              className="group relative overflow-hidden rounded-3xl border border-border/60 bg-background/70 p-6 shadow-xl backdrop-blur transition-all hover:-translate-y-1"
+            >
+              <div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-primary/10 blur-2xl" />
+              <branch.icon className="h-8 w-8 text-primary" />
+              <p className="mt-6 text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                {branch.name}
+              </p>
+              <h3 className="mt-2 text-lg font-semibold text-foreground">{branch.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Semester-wise notes, playlists, and exam guides.
+              </p>
+              <div className="mt-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                Explore
+              </div>
+            </div>
           ))}
         </motion.div>
       </div>

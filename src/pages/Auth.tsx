@@ -156,32 +156,38 @@ const Auth = () => {
     <div className="min-h-screen bg-gradient-navy">
       <Navbar />
       <main className="container mx-auto flex min-h-[calc(100vh-8rem)] items-center px-4 pb-16 pt-24 lg:px-8">
-        <div className="grid w-full gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div className="rounded-3xl border border-border/60 bg-background/70 p-8 shadow-2xl backdrop-blur">
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-              CoreEngineers Hub
-            </p>
-            <h1 className="mt-4 font-display text-3xl font-bold text-foreground sm:text-4xl">
-              Learn faster. Stay exam ready.
-            </h1>
-            <p className="mt-4 max-w-xl text-sm text-muted-foreground">
-              Access structured courses, revision notes, and curated videos built for MAKAUT
-              engineering students. Everything in one dashboard.
-            </p>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              {heroItems.map((item) => (
-                <div
-                  key={item.title}
-                  className="rounded-2xl border border-border/60 bg-secondary/30 p-4"
-                >
-                  <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                  <p className="mt-2 text-xs text-muted-foreground">{item.desc}</p>
-                </div>
-              ))}
+        <div className="grid w-full gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-background/70 p-8 shadow-2xl backdrop-blur">
+            <div className="pointer-events-none absolute inset-0 grid-dots opacity-40" />
+            <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-primary/15 blur-3xl" />
+            <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-accent/20 blur-3xl" />
+            <div className="relative">
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                CoreEngineers Hub
+              </p>
+              <h1 className="mt-4 font-display text-3xl font-semibold text-foreground sm:text-4xl">
+                Your personal
+                <span className="block text-gradient-orange">Engineering HQ</span>
+              </h1>
+              <p className="mt-4 max-w-xl text-sm text-muted-foreground">
+                Sign in to access curated courses, revision notes, and realtime updates built for
+                MAKAUT engineering students.
+              </p>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                {heroItems.map((item) => (
+                  <div
+                    key={item.title}
+                    className="rounded-2xl border border-border/60 bg-secondary/30 p-4"
+                  >
+                    <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          <Card className="w-full border-border/50 bg-background/80 shadow-xl backdrop-blur">
+          <Card className="w-full border-border/50 bg-background/80 shadow-2xl backdrop-blur">
             <CardHeader>
               <CardTitle className="font-display text-2xl">
                 {mode === "signin" ? "Welcome back" : "Create your account"}

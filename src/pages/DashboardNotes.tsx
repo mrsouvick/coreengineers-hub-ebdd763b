@@ -51,24 +51,36 @@ const DashboardNotes = () => {
 
   return (
     <DashboardLayout>
-      <div className="rounded-2xl border border-border/60 bg-background/70 p-6 shadow-xl backdrop-blur">
-        <h1 className="font-display text-3xl font-bold text-foreground">Notes</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Quick access to your saved notes, PDFs, and revision sheets.
-        </p>
+      <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-background/70 p-8 shadow-2xl backdrop-blur">
+        <div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-primary/15 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-accent/20 blur-3xl" />
+        <div className="relative">
+          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Notes Library</p>
+          <h1 className="mt-3 text-3xl font-semibold text-foreground">Revision notes & PDFs</h1>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Search by topic, branch, or category. Everything updates in real time.
+          </p>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-background/70 p-4 shadow-lg backdrop-blur sm:flex-row sm:items-center">
+      <div className="grid gap-4 rounded-3xl border border-border/60 bg-background/70 p-4 shadow-xl backdrop-blur sm:grid-cols-3">
         <Input
           placeholder="Search notes..."
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <Input
-          placeholder="Filter by branch (ECE/EE/ME/Civil)"
+        <select
           value={branch}
           onChange={(event) => setBranch(event.target.value)}
-        />
+          className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+        >
+          <option value="">All branches</option>
+          <option value="CSE">CSE</option>
+          <option value="ECE">ECE</option>
+          <option value="EE">EE</option>
+          <option value="ME">ME</option>
+          <option value="Civil">Civil</option>
+        </select>
         <Input
           placeholder="Category (Signals/Machines)"
           value={category}
@@ -137,4 +149,3 @@ const DashboardNotes = () => {
 };
 
 export default DashboardNotes;
-

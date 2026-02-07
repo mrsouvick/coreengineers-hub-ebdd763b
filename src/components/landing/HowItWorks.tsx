@@ -1,71 +1,65 @@
-import { GitBranch, Layers, Play, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
+import { Map, ClipboardCheck, GraduationCap } from "lucide-react";
 
 const steps = [
   {
-    icon: GitBranch,
-    title: "Choose Your Branch",
-    description: "Select from ECE, EE, ME, or Civil Engineering to get started.",
+    icon: Map,
+    title: "Choose your semester",
+    description: "Select ECE, EE, ME, or Civil and your current semester." ,
   },
   {
-    icon: Layers,
-    title: "Select Your Semester",
-    description: "Navigate to your current semester and pick your subject.",
+    icon: ClipboardCheck,
+    title: "Follow the roadmap",
+    description: "Lessons, notes, and revision sheets organized in order.",
   },
   {
-    icon: Play,
-    title: "Start Learning",
-    description: "Watch video lectures, download notes, and track your progress.",
-  },
-  {
-    icon: Trophy,
-    title: "Ace Your Exams",
-    description: "Use revision materials and exam prep resources to score high.",
+    icon: GraduationCap,
+    title: "Crack exams with confidence",
+    description: "Stay aligned with MAKAUT syllabus and important questions.",
   },
 ];
 
 const HowItWorks = () => {
   return (
-    <section className="py-24">
+    <section className="py-16">
       <div className="container mx-auto px-4 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            How It <span className="text-gradient-orange">Works</span>
-          </h2>
-          <p className="mt-4 text-muted-foreground">
-            Four simple steps to supercharge your engineering journey.
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Workflow</p>
+            <h2 className="mt-3 text-3xl font-semibold text-foreground">How it works</h2>
+          </div>
+          <p className="max-w-lg text-sm text-muted-foreground">
+            A single dashboard keeps your learning structured. Follow the steps, stay consistent,
+            and upgrade your preparation.
           </p>
         </div>
 
-        <div className="relative mt-16">
-          {/* Connecting line */}
-          <div className="absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-gradient-to-b from-primary/40 via-primary/20 to-transparent lg:block" />
-
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map((step, index) => (
-              <motion.div
-                key={step.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="relative flex flex-col items-center text-center"
-              >
-                {/* Step number */}
-                <div className="relative">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary">
-                    <step.icon className="h-7 w-7" />
-                  </div>
-                  <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary font-mono text-xs font-bold text-primary-foreground">
-                    {index + 1}
-                  </span>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="mt-10 grid gap-6 lg:grid-cols-3"
+        >
+          {steps.map((step, index) => (
+            <div
+              key={step.title}
+              className="relative overflow-hidden rounded-3xl border border-border/60 bg-background/70 p-6 shadow-xl backdrop-blur"
+            >
+              <div className="absolute right-0 top-0 h-16 w-16 rounded-full bg-primary/15 blur-2xl" />
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+                  <step.icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-5 font-display text-lg font-semibold">{step.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{step.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+                <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                  Step {index + 1}
+                </p>
+              </div>
+              <h3 className="mt-5 text-lg font-semibold text-foreground">{step.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{step.description}</p>
+            </div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );

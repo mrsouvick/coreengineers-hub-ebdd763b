@@ -29,6 +29,7 @@ const Explore = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [search, setSearch] = useState("");
+  const [branch, setBranch] = useState("");
 
   useEffect(() => {
     const courseRef = collection(db, "courses");
@@ -52,12 +53,13 @@ const Explore = () => {
     };
   }, []);
 
-  const filteredCourses = courses.filter(
-    (course) =>
-      course.status !== "draft" &&
-      (course.title.toLowerCase().includes(search.toLowerCase()) ||
-        (course.description ?? "").toLowerCase().includes(search.toLowerCase()))
-  );
+  const filteredCourses = courses.filter((course) => {
+    const matchSearch =
+      course.title.toLowerCase().includes(search.toLowerCase()) ||
+      (course.description ?? "").toLowerCase().includes(search.toLowerCase());
+    const matchBranch = branch ? course.branch.toLowerCase() === branch.toLowerCase() : true;
+    return course.status !== "draft" && matchSearch && matchBranch;
+  });
 
   const filteredNotes = notes.filter(
     (note) =>
@@ -89,6 +91,20 @@ const Explore = () => {
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
+            </div>
+            <div className="mt-3 max-w-sm">
+              <select
+                value={branch}
+                onChange={(event) => setBranch(event.target.value)}
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+              >
+                <option value="">All branches</option>
+                <option value="CSE">CSE</option>
+                <option value="ECE">ECE</option>
+                <option value="EE">EE</option>
+                <option value="ME">ME</option>
+                <option value="Civil">Civil</option>
+              </select>
             </div>
           </div>
         </div>

@@ -3,16 +3,15 @@ import { Youtube, Instagram, Mail, Heart } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-border/50 bg-navy-deep py-12">
+    <footer className="border-t border-border/50 bg-background/80 py-12">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-2">
               <img
                 src="/hero.png"
                 alt="CoreEngineers Hub logo"
-                className="h-9 w-9 rounded-lg object-cover"
+                className="h-10 w-10 rounded-xl object-cover"
               />
               <span className="font-display text-lg font-bold tracking-tight text-foreground">
                 Core<span className="text-primary">Engineers</span>
@@ -23,14 +22,13 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Quick Links */}
           <div>
-            <h4 className="font-display text-sm font-semibold text-foreground">Quick Links</h4>
+            <h4 className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Quick Links</h4>
             <ul className="mt-4 space-y-3">
               {[
                 { label: "Home", path: "/" },
-                { label: "Explore Branches", path: "/explore" },
-                { label: "About Us", path: "/about" },
+                { label: "Explore", path: "/explore" },
+                { label: "About", path: "/about" },
                 { label: "Contact", path: "/contact" },
               ].map((link) => (
                 <li key={link.path}>
@@ -45,16 +43,10 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Resources */}
           <div>
-            <h4 className="font-display text-sm font-semibold text-foreground">Resources</h4>
+            <h4 className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Resources</h4>
             <ul className="mt-4 space-y-3">
-              {[
-                "Video Lectures",
-                "Study Notes",
-                "Exam Prep",
-                "Revision Sheets",
-              ].map((item) => (
+              {["Video Lectures", "Study Notes", "Exam Prep", "Revision Sheets"].map((item) => (
                 <li key={item}>
                   <span className="text-sm text-muted-foreground">{item}</span>
                 </li>
@@ -62,9 +54,8 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Social */}
           <div>
-            <h4 className="font-display text-sm font-semibold text-foreground">Connect</h4>
+            <h4 className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Connect</h4>
             <div className="mt-4 flex gap-3">
               <a
                 href="https://youtube.com"
@@ -95,10 +86,9 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/50 pt-8 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            Â© {new Date().getFullYear()} CoreEngineers Hub. All rights reserved.
+            © {new Date().getFullYear()} CoreEngineers Hub. All rights reserved.
           </p>
           <p className="flex items-center gap-1 text-xs text-muted-foreground">
             Made with <Heart className="h-3 w-3 text-primary" /> for MAKAUT students

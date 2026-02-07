@@ -3,13 +3,14 @@ import Footer from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { supabase } from "@/lib/supabaseClient";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 
 const Dashboard = () => {
   const { user } = useAuth();
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await signOut(auth);
   };
 
   return (

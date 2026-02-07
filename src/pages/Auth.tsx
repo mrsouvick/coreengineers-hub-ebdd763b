@@ -6,8 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { auth } from "@/lib/firebase";
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -31,14 +37,13 @@ const Auth = () => {
 
     try {
       if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        await signInWithEmailAndPassword(auth, email, password);
         setMessage("Signed in. Redirecting…");
         navigate("/dashboard", { replace: true });
       } else {
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        setMessage("Check your email to confirm your account, then sign in.");
+        await createUserWithEmailAndPassword(auth, email, password);
+        setMessage("Account created. Redirecting…");
+        navigate("/dashboard", { replace: true });
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Something went wrong.";
@@ -51,14 +56,13 @@ const Auth = () => {
   const handleGoogle = async () => {
     setSubmitting(true);
     setMessage(null);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
-    if (error) {
-      setMessage(error.message);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong.";
+      setMessage(errorMessage);
       setSubmitting(false);
     }
   };

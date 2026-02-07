@@ -9,6 +9,10 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import DashboardCourses from "./pages/DashboardCourses";
+import DashboardNotes from "./pages/DashboardNotes";
+import DashboardProfile from "./pages/DashboardProfile";
+import Admin from "./pages/Admin";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
@@ -31,6 +35,38 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/courses"
+              element={
+                <ProtectedRoute>
+                  <DashboardCourses />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/notes"
+              element={
+                <ProtectedRoute>
+                  <DashboardNotes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/profile"
+              element={
+                <ProtectedRoute>
+                  <DashboardProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <Admin />
                 </ProtectedRoute>
               }
             />

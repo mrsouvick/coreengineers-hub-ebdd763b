@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { db } from "@/lib/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
 
 const navLinks = [
   { label: "Home", path: "/" },
@@ -14,6 +17,28 @@ const navLinks = [
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
+  const [profileName, setProfileName] = useState<string | null>(null);
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user?.uid) {
+      setProfileName(null);
+      return;
+    }
+    const profileRef = doc(db, "profiles", user.uid);
+    const unsub = onSnapshot(profileRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.data() as { name?: string; photoUrl?: string };
+        setProfileName(data.name ?? null);
+        setProfilePhoto(data.photoUrl ?? null);
+      }
+    });
+    return () => unsub();
+  }, [user?.uid]);
+
+  const displayNameRaw = profileName || user?.displayName || user?.email || "Dashboard";
+  const displayName = displayNameRaw.split(" ")[0];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
@@ -49,16 +74,41 @@ const Navbar = () => {
 
         {/* Desktop CTA */}
         <div className="hidden items-center gap-3 md:flex">
-          <Link to="/auth">
-            <Button variant="ghost" size="sm" className="text-muted-foreground">
-              Log In
-            </Button>
-          </Link>
-          <Link to="/auth">
-            <Button size="sm" className="glow-orange-sm">
-              Get Started
-            </Button>
-          </Link>
+          {user ? (
+            <Link to="/dashboard" className="flex items-center gap-3">
+              {profilePhoto ? (
+                <img
+                  src={profilePhoto}
+                  alt="Profile"
+                  className="h-8 w-8 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-xs font-semibold text-primary">
+                  {displayName.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">Signed in</p>
+                <p className="text-sm font-semibold text-foreground">{displayName}</p>
+              </div>
+              <Button size="sm" className="glow-orange-sm">
+                Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link to="/auth">
+                <Button variant="ghost" size="sm" className="text-muted-foreground">
+                  Log In
+                </Button>
+              </Link>
+              <Link to="/auth">
+                <Button size="sm" className="glow-orange-sm">
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Toggle */}
@@ -96,14 +146,38 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="mt-3 flex flex-col gap-2">
-                <Link to="/auth" onClick={() => setMobileOpen(false)}>
-                  <Button variant="outline" className="w-full">
-                    Log In
-                  </Button>
-                </Link>
-                <Link to="/auth" onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full">Get Started</Button>
-                </Link>
+                {user ? (
+                  <>
+                    <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-secondary/40 px-4 py-3 text-sm text-foreground">
+                      {profilePhoto ? (
+                        <img
+                          src={profilePhoto}
+                          alt="Profile"
+                          className="h-7 w-7 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20 text-xs font-semibold text-primary">
+                          {displayName.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      {displayName}
+                    </div>
+                    <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
+                      <Button className="w-full">Dashboard</Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/auth" onClick={() => setMobileOpen(false)}>
+                      <Button variant="outline" className="w-full">
+                        Log In
+                      </Button>
+                    </Link>
+                    <Link to="/auth" onClick={() => setMobileOpen(false)}>
+                      <Button className="w-full">Get Started</Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

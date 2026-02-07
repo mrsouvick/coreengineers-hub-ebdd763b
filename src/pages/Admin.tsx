@@ -178,11 +178,12 @@ const Admin = () => {
 
   const upsertNote = async () => {
     if (!noteForm.title.trim() || !noteForm.tag.trim()) return;
+    const resolvedUrl = noteForm.downloadUrl.trim();
     const payload = {
       title: noteForm.title.trim(),
       tag: noteForm.tag.trim(),
       description: noteForm.description.trim(),
-      downloadUrl: noteForm.downloadUrl.trim(),
+      downloadUrl: resolvedUrl,
       updatedAt: serverTimestamp(),
     };
     if (noteForm.id) {
@@ -348,9 +349,12 @@ const Admin = () => {
                 onChange={(event) =>
                   setNoteForm({ ...noteForm, downloadUrl: event.target.value })
                 }
-                placeholder="https://drive.google.com/..."
+                placeholder="Paste Google Drive or GitHub link"
               />
             </div>
+            <p className="text-xs text-muted-foreground">
+              Tip: Use Google Drive (Anyone with link) or GitHub raw file URLs.
+            </p>
             <Button onClick={upsertNote}>{noteForm.id ? "Update Note" : "Publish Note"}</Button>
           </CardContent>
         </Card>

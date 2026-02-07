@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
@@ -16,7 +18,16 @@ type Course = {
 const DashboardCourses = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [branch, setBranch] = useState("");
   const visibleCourses = courses.filter((course) => course.status !== "draft");
+  const filteredCourses = visibleCourses.filter((course) => {
+    const matchSearch =
+      course.title.toLowerCase().includes(search.toLowerCase()) ||
+      (course.description ?? "").toLowerCase().includes(search.toLowerCase());
+    const matchBranch = branch ? course.branch.toLowerCase() === branch.toLowerCase() : true;
+    return matchSearch && matchBranch;
+  });
 
   useEffect(() => {
     const coursesRef = collection(db, "courses");
@@ -41,17 +52,43 @@ const DashboardCourses = () => {
         </p>
       </div>
 
+      <div className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-background/70 p-4 shadow-lg backdrop-blur sm:flex-row sm:items-center">
+        <Input
+          placeholder="Search courses..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <Input
+          placeholder="Filter by branch (ECE/EE/ME/Civil)"
+          value={branch}
+          onChange={(event) => setBranch(event.target.value)}
+        />
+      </div>
+
       {loading ? (
+        <div className="grid gap-6 lg:grid-cols-2">
+          {[0, 1, 2, 3].map((item) => (
+            <Card
+              key={item}
+              className="animate-pulse border-border/50 bg-background/80 backdrop-blur"
+            >
+              <CardHeader>
+                <div className="h-5 w-2/3 rounded bg-secondary/60" />
+                <div className="mt-3 h-3 w-1/3 rounded bg-secondary/60" />
+              </CardHeader>
+              <CardContent>
+                <div className="h-16 rounded bg-secondary/60" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : filteredCourses.length === 0 ? (
         <Card className="border-border/50 bg-background/80 p-6 text-sm text-muted-foreground backdrop-blur">
-          Loading courses...
-        </Card>
-      ) : visibleCourses.length === 0 ? (
-        <Card className="border-border/50 bg-background/80 p-6 text-sm text-muted-foreground backdrop-blur">
-          <p>No courses published yet.</p>
+          <p>No courses match your filters.</p>
         </Card>
       ) : (
         <div className="grid gap-6 lg:grid-cols-2">
-          {visibleCourses.map((course) => (
+          {filteredCourses.map((course) => (
             <Card key={course.id} className="border-border/50 bg-background/80 backdrop-blur">
               <CardHeader>
                 <CardTitle className="font-display text-xl">{course.title}</CardTitle>
@@ -65,17 +102,22 @@ const DashboardCourses = () => {
                     {course.description}
                   </p>
                 )}
-                {course.youtubeUrl ? (
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Button className="w-full" asChild>
-                    <a href={course.youtubeUrl} target="_blank" rel="noreferrer">
-                      Watch on YouTube
-                    </a>
+                    <Link to={`/courses/${course.id}`}>View Course</Link>
                   </Button>
-                ) : (
-                  <Button className="w-full" variant="secondary" disabled>
-                    Video coming soon
-                  </Button>
-                )}
+                  {course.youtubeUrl ? (
+                    <Button className="w-full" variant="outline" asChild>
+                      <a href={course.youtubeUrl} target="_blank" rel="noreferrer">
+                        YouTube
+                      </a>
+                    </Button>
+                  ) : (
+                    <Button className="w-full" variant="secondary" disabled>
+                      Video coming soon
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}

@@ -14,6 +14,7 @@ import DashboardNotes from "./pages/DashboardNotes";
 import DashboardProfile from "./pages/DashboardProfile";
 import Admin from "./pages/Admin";
 import AdminRoute from "@/components/auth/AdminRoute";
+import CourseDetail from "./pages/CourseDetail";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
@@ -60,6 +61,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <DashboardProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/courses/:id"
+              element={
+                <ProtectedRoute>
+                  <CourseDetail />
                 </ProtectedRoute>
               }
             />

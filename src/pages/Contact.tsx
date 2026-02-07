@@ -153,29 +153,29 @@ const Contact = () => {
                   <h3 className="font-display text-lg font-bold">Connect With Us</h3>
                   <div className="mt-4 space-y-3">
                     <a
-                      href="https://youtube.com"
+                      href="https://www.youtube.com/@vickify-b6l"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 rounded-lg border border-border bg-secondary/50 p-3 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                     >
                       <Youtube className="h-5 w-5 text-primary" />
-                      YouTube — CoreEngineers Hub
+                      YouTube — VickiFY
                     </a>
                     <a
-                      href="https://instagram.com"
+                      href="https://www.instagram.com/souvick.exe/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 rounded-lg border border-border bg-secondary/50 p-3 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                     >
                       <Instagram className="h-5 w-5 text-primary" />
-                      Instagram — @coreengineershub
+                      Instagram — @souvick.exe
                     </a>
                     <a
-                      href="mailto:contact@coreengineershub.com"
+                      href="mailto:coreengineershub@gmail.com"
                       className="flex items-center gap-3 rounded-lg border border-border bg-secondary/50 p-3 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                     >
                       <Mail className="h-5 w-5 text-primary" />
-                      contact@coreengineershub.com
+                      coreengineershub@gmail.com
                     </a>
                   </div>
                 </div>

@@ -9,9 +9,11 @@ const Footer = () => {
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary font-display text-sm font-bold text-primary-foreground">
-                CE
-              </div>
+              <img
+                src="/hero.png"
+                alt="CoreEngineers Hub logo"
+                className="h-9 w-9 rounded-lg object-cover"
+              />
               <span className="font-display text-lg font-bold tracking-tight text-foreground">
                 Core<span className="text-primary">Engineers</span>
               </span>

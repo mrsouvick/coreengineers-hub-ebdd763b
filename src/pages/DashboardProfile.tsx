@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { updateProfile } from "firebase/auth";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 
 type ProfileForm = {
   name: string;
@@ -16,8 +17,6 @@ type ProfileForm = {
   semester: string;
   bio: string;
 };
-
-const getProfileKey = (uid: string) => `cehub-profile-${uid}`;
 
 const DashboardProfile = () => {
   const { user } = useAuth();
@@ -32,16 +31,28 @@ const DashboardProfile = () => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!user?.uid) return;
-    const stored = localStorage.getItem(getProfileKey(user.uid));
-    if (stored) {
-      setForm(JSON.parse(stored) as ProfileForm);
-      return;
-    }
-    setForm((prev) => ({
-      ...prev,
-      name: user.displayName ?? "",
-    }));
+    const loadProfile = async () => {
+      if (!user?.uid) return;
+      const profileRef = doc(db, "profiles", user.uid);
+      const snapshot = await getDoc(profileRef);
+      if (snapshot.exists()) {
+        const data = snapshot.data() as ProfileForm;
+        setForm({
+          name: data.name ?? "",
+          phone: data.phone ?? "",
+          branch: data.branch ?? "",
+          semester: data.semester ?? "",
+          bio: data.bio ?? "",
+        });
+        return;
+      }
+      setForm((prev) => ({
+        ...prev,
+        name: user.displayName ?? "",
+      }));
+    };
+
+    loadProfile();
   }, [user]);
 
   const updateField = (field: keyof ProfileForm, value: string) => {
@@ -58,7 +69,16 @@ const DashboardProfile = () => {
       if (auth.currentUser) {
         await updateProfile(auth.currentUser, { displayName: form.name });
       }
-      localStorage.setItem(getProfileKey(user.uid), JSON.stringify(form));
+      const profileRef = doc(db, "profiles", user.uid);
+      await setDoc(
+        profileRef,
+        {
+          ...form,
+          email: user.email,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
       setMessage("Profile updated successfully.");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to update profile.";
@@ -83,6 +103,10 @@ const DashboardProfile = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSave} className="grid gap-6 lg:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="uid">User ID (UID)</Label>
+              <Input id="uid" value={user?.uid ?? ""} readOnly />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <Input

@@ -13,6 +13,7 @@ import DashboardCourses from "./pages/DashboardCourses";
 import DashboardNotes from "./pages/DashboardNotes";
 import DashboardProfile from "./pages/DashboardProfile";
 import Admin from "./pages/Admin";
+import AdminRoute from "@/components/auth/AdminRoute";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
@@ -66,7 +67,9 @@ const App = () => (
               path="/admin"
               element={
                 <ProtectedRoute>
-                  <Admin />
+                  <AdminRoute>
+                    <Admin />
+                  </AdminRoute>
                 </ProtectedRoute>
               }
             />

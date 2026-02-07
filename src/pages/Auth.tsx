@@ -19,7 +19,7 @@ import {
   signInWithPopup,
   updateProfile,
 } from "firebase/auth";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -47,6 +47,25 @@ const Auth = () => {
     await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
   };
 
+  const ensureProfile = async (uid: string, payload: { name?: string; email?: string | null }) => {
+    const profileRef = doc(db, "profiles", uid);
+    const snapshot = await getDoc(profileRef);
+    if (snapshot.exists()) return;
+    await setDoc(
+      profileRef,
+      {
+        name: payload.name ?? "",
+        email: payload.email ?? "",
+        phone,
+        city,
+        college,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+  };
+
   const handleEmailAuth = async (event: React.FormEvent) => {
     event.preventDefault();
     setSubmitting(true);
@@ -55,7 +74,8 @@ const Auth = () => {
     try {
       await applyPersistence();
       if (mode === "signin") {
-        await signInWithEmailAndPassword(auth, email, password);
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        await ensureProfile(cred.user.uid, { name: cred.user.displayName ?? "", email });
         setMessage("Signed in. Redirecting...");
         navigate("/dashboard", { replace: true });
       } else {
@@ -109,7 +129,11 @@ const Auth = () => {
     try {
       await applyPersistence();
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      await ensureProfile(result.user.uid, {
+        name: result.user.displayName ?? "",
+        email: result.user.email,
+      });
       navigate("/dashboard", { replace: true });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Something went wrong.";

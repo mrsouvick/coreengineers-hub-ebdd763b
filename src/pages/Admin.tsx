@@ -32,8 +32,16 @@ type Note = {
   id: string;
   title: string;
   tag: string;
+  category?: string;
   description?: string;
   downloadUrl?: string;
+};
+
+type Lesson = {
+  id: string;
+  title: string;
+  youtubeUrl?: string;
+  order?: number;
 };
 
 type Profile = {
@@ -53,6 +61,8 @@ const Admin = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState("");
 
   const [courseForm, setCourseForm] = useState({
     id: "",
@@ -67,8 +77,15 @@ const Admin = () => {
     id: "",
     title: "",
     tag: "",
+    category: "",
     description: "",
     downloadUrl: "",
+  });
+  const [lessonForm, setLessonForm] = useState({
+    id: "",
+    title: "",
+    youtubeUrl: "",
+    order: "1",
   });
 
   const stats = useMemo(
@@ -113,6 +130,23 @@ const Admin = () => {
       unsubProfiles();
     };
   }, []);
+
+  useEffect(() => {
+    if (!selectedCourseId) {
+      setLessons([]);
+      return;
+    }
+    const lessonsRef = collection(db, "courses", selectedCourseId, "lessons");
+    const unsubscribe = onSnapshot(query(lessonsRef, orderBy("order", "asc")), (snap) => {
+      setLessons(
+        snap.docs.map((docItem) => ({
+          id: docItem.id,
+          ...(docItem.data() as Omit<Lesson, "id">),
+        }))
+      );
+    });
+    return () => unsubscribe();
+  }, [selectedCourseId]);
 
   const grantAdmin = async () => {
     if (!uid.trim()) return;
@@ -182,6 +216,7 @@ const Admin = () => {
     const payload = {
       title: noteForm.title.trim(),
       tag: noteForm.tag.trim(),
+      category: noteForm.category.trim(),
       description: noteForm.description.trim(),
       downloadUrl: resolvedUrl,
       updatedAt: serverTimestamp(),
@@ -198,6 +233,7 @@ const Admin = () => {
       id: "",
       title: "",
       tag: "",
+      category: "",
       description: "",
       downloadUrl: "",
     });
@@ -208,6 +244,7 @@ const Admin = () => {
       id: note.id,
       title: note.title,
       tag: note.tag,
+      category: note.category ?? "",
       description: note.description ?? "",
       downloadUrl: note.downloadUrl ?? "",
     });
@@ -217,13 +254,58 @@ const Admin = () => {
     await deleteDoc(doc(db, "notes", noteId));
   };
 
+  const upsertLesson = async () => {
+    if (!selectedCourseId || !lessonForm.title.trim()) return;
+    const payload = {
+      title: lessonForm.title.trim(),
+      youtubeUrl: lessonForm.youtubeUrl.trim(),
+      order: Number(lessonForm.order) || 1,
+      updatedAt: serverTimestamp(),
+    };
+    if (lessonForm.id) {
+      await updateDoc(
+        doc(db, "courses", selectedCourseId, "lessons", lessonForm.id),
+        payload
+      );
+    } else {
+      await addDoc(collection(db, "courses", selectedCourseId, "lessons"), {
+        ...payload,
+        createdAt: serverTimestamp(),
+      });
+    }
+    setLessonForm({ id: "", title: "", youtubeUrl: "", order: "1" });
+  };
+
+  const editLesson = (lesson: Lesson) => {
+    setLessonForm({
+      id: lesson.id,
+      title: lesson.title,
+      youtubeUrl: lesson.youtubeUrl ?? "",
+      order: String(lesson.order ?? 1),
+    });
+  };
+
+  const deleteLesson = async (lessonId: string) => {
+    if (!selectedCourseId) return;
+    await deleteDoc(doc(db, "courses", selectedCourseId, "lessons", lessonId));
+  };
+
   return (
     <DashboardLayout>
-      <div className="rounded-2xl border border-border/60 bg-background/70 p-6 shadow-xl backdrop-blur">
-        <h1 className="font-display text-3xl font-bold text-foreground">Admin Panel</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Manage courses, notes, students, and admin access in real-time.
-        </p>
+      <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-background/70 p-8 shadow-2xl backdrop-blur">
+        <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-orange-muted/20 blur-3xl" />
+        <div className="relative">
+          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            Admin Control Room
+          </p>
+          <h1 className="mt-3 font-display text-3xl font-bold text-foreground sm:text-4xl">
+            CoreEngineers Studio
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+            Publish courses, manage notes, and keep the platform fresh in real time.
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-4">
@@ -241,6 +323,9 @@ const Admin = () => {
         ))}
       </div>
 
+      <div className="rounded-2xl border border-border/50 bg-background/60 p-4 text-xs uppercase tracking-[0.3em] text-muted-foreground">
+        Content Studio
+      </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="border-border/50 bg-background/80 backdrop-blur">
           <CardHeader>
@@ -331,6 +416,15 @@ const Admin = () => {
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="note-category">Category</Label>
+              <Input
+                id="note-category"
+                value={noteForm.category}
+                onChange={(event) => setNoteForm({ ...noteForm, category: event.target.value })}
+                placeholder="Signals / Machines / Thermo"
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="note-desc">Description</Label>
               <Textarea
                 id="note-desc"
@@ -359,6 +453,99 @@ const Admin = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="border-border/50 bg-background/80 backdrop-blur">
+        <CardHeader>
+          <CardTitle className="font-display text-xl">Manage Lessons (Realtime)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="lesson-course">Select Course</Label>
+            <select
+              id="lesson-course"
+              value={selectedCourseId}
+              onChange={(event) => setSelectedCourseId(event.target.value)}
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            >
+              <option value="">Choose a course</option>
+              {courses.map((course) => (
+                <option key={course.id} value={course.id}>
+                  {course.title}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="lesson-title">Lesson Title</Label>
+              <Input
+                id="lesson-title"
+                value={lessonForm.title}
+                onChange={(event) => setLessonForm({ ...lessonForm, title: event.target.value })}
+                placeholder="Signals & Systems — Intro"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lesson-order">Order</Label>
+              <Input
+                id="lesson-order"
+                value={lessonForm.order}
+                onChange={(event) => setLessonForm({ ...lessonForm, order: event.target.value })}
+                placeholder="1"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lesson-youtube">YouTube Link</Label>
+            <Input
+              id="lesson-youtube"
+              value={lessonForm.youtubeUrl}
+              onChange={(event) => setLessonForm({ ...lessonForm, youtubeUrl: event.target.value })}
+              placeholder="https://youtube.com/..."
+            />
+          </div>
+          <Button onClick={upsertLesson} disabled={!selectedCourseId}>
+            {lessonForm.id ? "Update Lesson" : "Add Lesson"}
+          </Button>
+
+          {selectedCourseId ? (
+            <div className="space-y-3 text-sm text-muted-foreground">
+              {lessons.length === 0 ? (
+                <p>No lessons yet.</p>
+              ) : (
+                lessons.map((lesson) => (
+                  <div
+                    key={lesson.id}
+                    className="flex flex-col gap-3 rounded-lg border border-border/60 bg-secondary/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div>
+                      <p className="text-foreground">{lesson.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Order {lesson.order ?? 1}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => editLesson(lesson)}>
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => deleteLesson(lesson.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Select a course to manage lessons.</p>
+          )}
+        </CardContent>
+      </Card>
 
       <Card className="border-border/50 bg-background/80 backdrop-blur">
         <CardHeader>
@@ -410,6 +597,7 @@ const Admin = () => {
                   <p className="text-foreground">{note.title}</p>
                   <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
                     {note.tag}
+                    {note.category ? ` · ${note.category}` : ""}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -476,3 +664,4 @@ const Admin = () => {
 };
 
 export default Admin;
+

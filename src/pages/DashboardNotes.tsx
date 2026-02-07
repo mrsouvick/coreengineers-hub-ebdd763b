@@ -10,6 +10,7 @@ type Note = {
   id: string;
   title: string;
   tag: string;
+  category?: string;
   updated?: string;
   description?: string;
   downloadUrl?: string;
@@ -20,12 +21,17 @@ const DashboardNotes = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [branch, setBranch] = useState("");
+  const [category, setCategory] = useState("");
+
   const filteredNotes = notes.filter((note) => {
     const matchSearch =
       note.title.toLowerCase().includes(search.toLowerCase()) ||
       (note.description ?? "").toLowerCase().includes(search.toLowerCase());
     const matchBranch = branch ? note.tag.toLowerCase() === branch.toLowerCase() : true;
-    return matchSearch && matchBranch;
+    const matchCategory = category
+      ? (note.category ?? "").toLowerCase() === category.toLowerCase()
+      : true;
+    return matchSearch && matchBranch && matchCategory;
   });
 
   useEffect(() => {
@@ -42,6 +48,7 @@ const DashboardNotes = () => {
 
     return () => unsubscribe();
   }, []);
+
   return (
     <DashboardLayout>
       <div className="rounded-2xl border border-border/60 bg-background/70 p-6 shadow-xl backdrop-blur">
@@ -61,6 +68,11 @@ const DashboardNotes = () => {
           placeholder="Filter by branch (ECE/EE/ME/Civil)"
           value={branch}
           onChange={(event) => setBranch(event.target.value)}
+        />
+        <Input
+          placeholder="Category (Signals/Machines)"
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
         />
       </div>
 
@@ -97,7 +109,8 @@ const DashboardNotes = () => {
                   <p className="text-foreground">{note.title}</p>
                   <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
                     {note.tag}
-                    {note.updated ? ` · ${note.updated}` : ""}
+                    {note.category ? ` - ${note.category}` : ""}
+                    {note.updated ? ` - ${note.updated}` : ""}
                   </p>
                   {note.description && <p className="mt-2 text-xs">{note.description}</p>}
                 </div>
@@ -124,3 +137,4 @@ const DashboardNotes = () => {
 };
 
 export default DashboardNotes;
+

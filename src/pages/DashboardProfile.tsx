@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { auth, db } from "@/lib/firebase";
 import { updateProfile } from "firebase/auth";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
 
 type ProfileForm = {
   name: string;
@@ -31,10 +31,9 @@ const DashboardProfile = () => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const loadProfile = async () => {
-      if (!user?.uid) return;
-      const profileRef = doc(db, "profiles", user.uid);
-      const snapshot = await getDoc(profileRef);
+    if (!user?.uid) return;
+    const profileRef = doc(db, "profiles", user.uid);
+    const unsubscribe = onSnapshot(profileRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data() as ProfileForm;
         setForm({
@@ -50,9 +49,9 @@ const DashboardProfile = () => {
         ...prev,
         name: user.displayName ?? "",
       }));
-    };
+    });
 
-    loadProfile();
+    return () => unsubscribe();
   }, [user]);
 
   const updateField = (field: keyof ProfileForm, value: string) => {
@@ -87,6 +86,7 @@ const DashboardProfile = () => {
       setSaving(false);
     }
   };
+
 
   return (
     <DashboardLayout>
@@ -163,6 +163,7 @@ const DashboardProfile = () => {
               )}
             </div>
           </form>
+
         </CardContent>
       </Card>
     </DashboardLayout>

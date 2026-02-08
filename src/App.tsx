@@ -9,6 +9,8 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Explore from "./pages/Explore";
+import Syllabus from "./pages/Syllabus";
+import Announcements from "./pages/Announcements";
 import Dashboard from "./pages/Dashboard";
 import DashboardCourses from "./pages/DashboardCourses";
 import DashboardNotes from "./pages/DashboardNotes";
@@ -33,6 +35,8 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/explore" element={<Explore />} />
+            <Route path="/syllabus" element={<Syllabus />} />
+            <Route path="/announcements" element={<Announcements />} />
             <Route path="/auth" element={<Auth />} />
             <Route
               path="/dashboard"
